@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ping Pong Game</title>
+  </head>
+  <body>
+    <canvas></canvas>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      canvas {
+        background: #fad6f4;
+      }
+    </style>
+
+    <script>
+      window.onload = function () {
+        var c;
+        var canvas = document.querySelector("canvas");
+        c = document.querySelector("canvas");
+        c.width = innerWidth;
+        c.height = innerHeight;
+        c = c.getContext("2d");
+        var innerX = innerWidth / 2;
+        var innerY = innerHeight / 2;
+        var bRadius = 10;
+        var dx = 1;
+        var dy = 1;
+        var line1X = 1,
+          line1Y = innerHeight / 2,
+          line1W = 5,
+          line1H = 100;
+        var line2X = innerWidth - 6,
+          line2Y = innerHeight / 2,
+          line2W = 5,
+          line2H = 100;
+        var scorePlayer1 = 0;
+        var scorePlayer2 = 0;
+        var AI = 0;
+
+        window.addEventListener("mousemove", function (event) {
+          if (dx < 0) {
+            line1Y = event.clientY - line1H / 2;
+            event.preventDefault();
+          } else {
+            line2Y = event.clientY - line2H / 2;
+            event.preventDefault();
+          }
+        });
+
+        canvas.addEventListener("touchmove", function (e) {
+          var rect = canvas.getBoundingClientRect();
+          var root = document.documentElement;
+          var touch = e.changedTouches[0];
+          var touchY = parseInt(touch.clientY) - rect.top - root.scrollTop;
+          e.preventDefault();
+          if (dx < 0) {
+            line1Y = touchY - line1H / 2;
+          } else {
+            line2Y = touchY - line2H / 2;
+          }
+        });
+
+        function reset() {
+          innerX = innerWidth / 2;
+          innerY = innerHeight / 2;
+          dx = 1;
+          dy = 1;
+        }
+
+        function animate() {
+          requestAnimationFrame(animate);
+
+          c.clearRect(0, 0, innerWidth, innerHeight);
+          c.beginPath();
+
+          c.arc(innerX, innerY, bRadius, 0, Math.PI * 2, false);
+          c.fill();
+          c.stroke();
+
+          c.beginPath();
+          c.fillRect(line1X, line1Y, line1W, line1H);
+
+          c.beginPath();
+          c.fillRect(line2X, line2Y, line2W, line2H);
+
+          c.fillText(scorePlayer1, 100, 20);
+          c.fillText(scorePlayer2, innerWidth - 100, 20);
+
+          var allColors = [
+            "#ff0000",
+            "#ff7b00",
+            "#fffb00",
+            "#7bff00",
+            "#00ff6a",
+            "#00fff2",
+            "#008cff",
+            "#1900ff",
+            "#e100ff",
+            "#ff0080",
+            "#680637",
+            "#0f5c48",
+          ];
+          var randomColor =
+            allColors[Math.floor(Math.random() * allColors.length)];
+
+          function line1Bounce() {
+            if (innerX - bRadius < 0) {
+              if (innerY >= line1Y && innerY <= line1Y + line1H) {
+                dx = -dx + 0.8;
+                c.fillStyle = randomColor;
+              } else {
+                scorePlayer2++;
+                reset();
+              }
+            }
+          }
+
+          function line2Bounce() {
+            if (innerX + bRadius > innerWidth) {
+              if (innerY >= line2Y && innerY <= line2Y + line2H) {
+                dx = -dx - 0.8;
+                c.fillStyle = randomColor;
+              } else {
+                scorePlayer1++;
+                reset();
+              }
+            }
+          }
+
+          function bounce() {
+            if (innerY + bRadius > innerHeight || innerY - bRadius < 0) {
+              dy = -dy;
+            }
+          }
+
+          function onlyCanvas() {
+            if (line1Y + line1H > innerHeight) {
+              line1Y = innerHeight - line1H;
+            }
+            if (line1Y < 0) {
+              line1Y = 0;
+            }
+            if (line2Y + line2H > innerHeight) {
+              line2Y = innerHeight - line2H;
+            }
+            if (line2Y < 0) {
+              line2Y = 0;
+            }
+          }
+          function AIPlayer() {
+            if (line2Y + line2H / 2 < innerY) {
+              line2Y += AI;
+            } else {
+              line2Y -= AI;
+            }
+          }
+
+          function moveBall() {
+            innerX += dx;
+            innerY += dy;
+          }
+
+          moveBall();
+          line1Bounce();
+          line2Bounce();
+          bounce();
+          onlyCanvas();
+          AIPlayer();
+        }
+        animate();
+      };
+    </script>
+  </body>
+</html>
